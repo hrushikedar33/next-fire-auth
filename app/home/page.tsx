@@ -5,20 +5,22 @@ import { auth, initFirebase } from "../../config/firebase";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
+import { SignalIcon } from "@heroicons/react/24/solid";
+import { notFound } from "next/navigation";
 
 type Props = {};
 
 const HomePage = (props: Props) => {
   initFirebase();
   const router = useRouter();
-  const [user, loading, error] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
 
   if (loading) {
-    return <div>Loading...</div>;
+    <SignalIcon className="h-20 w-20 text-red-700 mx-auto mt-4 animate-spin" />;
   } else {
     if (!user) {
+      <SignalIcon className="h-20 w-20 text-red-700 mx-auto mt-4 animate-spin" />;
       router.push("/login");
-      return <div>Loading...</div>;
     }
   }
 
@@ -30,15 +32,7 @@ const HomePage = (props: Props) => {
       console.log(error);
     }
   };
-  return (
-    <div className="my-[7vh] md:my-[10vh] w-full md:max-w-xl mx-auto">
-      <div className="flex flex-col">
-        <button className="form-btn" onClick={logout}>
-          Logout
-        </button>
-      </div>
-    </div>
-  );
+  return notFound();
 };
 
 export default HomePage;

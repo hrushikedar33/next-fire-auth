@@ -14,6 +14,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import Loading from "../../components/Loading";
 
 type Props = {};
 
@@ -61,6 +62,7 @@ const SignUp = (props: Props) => {
     if (isValidEmail && checkPassword) {
       try {
         await createUserWithEmailAndPassword(auth, email, password);
+        <Loading />;
         router.push("/");
       } catch (error) {
         console.log(error);

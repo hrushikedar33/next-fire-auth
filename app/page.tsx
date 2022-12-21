@@ -2,7 +2,7 @@ type Props = {};
 
 const HomePage = (props: Props) => {
   return (
-    <div className="my-[7vh] md:my-[10vh] w-full md:max-w-xl mx-auto">
+    <div className="my-[7vh] md:my-[10vh] w-full md:max-w-2xl mx-auto">
       <div className="flex flex-col mx-2 p-6 bg-gray-900 rounded-md shadow-xl">
         <h1 className="font-semibold mb-2 text-xl uppercase tracking-widest">
           This template is buit on top of:

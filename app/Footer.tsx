@@ -7,7 +7,7 @@ const Footer = (props: Props) => {
       Created by:{" "}
       <Link
         href={"https://github.com/hrushikedar33"}
-        className="underline text-red-500"
+        className="underline font-semibold text-red-500"
       >
         hrushikedar33
       </Link>

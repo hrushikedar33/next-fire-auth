@@ -12,6 +12,7 @@ import {
 import { auth, initFirebase } from "../../config/firebase";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Loading from "../../components/Loading";
 
 type Props = {};
 
@@ -19,8 +20,7 @@ const LogIn = (props: Props) => {
   initFirebase();
 
   const router = useRouter();
-  const [user, loading, error] = useAuthState(auth);
-
+  const [user, loading] = useAuthState(auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -36,20 +36,20 @@ const LogIn = (props: Props) => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    <Loading />;
   } else {
     if (user) {
+      <Loading />;
       router.push("/");
-      return <div>Loading...</div>;
     }
   }
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("SUBMITTED");
     e.preventDefault();
 
     if (isValidEmail) {
       try {
+        <Loading />;
         await signInWithEmailAndPassword(auth, email, password);
         router.push("/");
       } catch (error) {
@@ -61,6 +61,7 @@ const LogIn = (props: Props) => {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      <Loading />;
       await signInWithPopup(auth, provider);
       router.push("/");
     } catch (error) {
@@ -134,12 +135,18 @@ const LogIn = (props: Props) => {
           <button className="form-btn">Submit</button>
         </div>
 
-        <p className="block mt-3 text-center">
+        <p className="block mt-4 text-center">
           Don't have an account?{" "}
           <Link href="/signup" className="text-red-500 font-semibold">
             Sign Up
           </Link>
         </p>
+        <Link
+          href="/forgot-password"
+          className="block mt-2 text-center text-red-500 font-semibold"
+        >
+          Forgot Password?
+        </Link>
       </form>
     </div>
   );
