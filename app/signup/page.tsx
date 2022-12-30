@@ -24,11 +24,10 @@ const SignUp = (props: Props) => {
 
   const [email, setEmail] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
+  const [errorMessages, setErrorMessages] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(false);
   const [password, setPassword] = useState("");
   const [cnfpassword, setCnfSetPassword] = useState("");
-  const [isValidPassword, setIsValidPassword] = useState(false);
 
   const comparePassword = (password: string, cnfpassword: string) => {
     return password === cnfpassword;
@@ -56,17 +55,25 @@ const SignUp = (props: Props) => {
   };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("SUBMITTED");
     e.preventDefault();
 
     if (isValidEmail && checkPassword) {
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        <Loading />;
-        router.push("/");
-      } catch (error) {
-        console.log(error);
-      }
+      <Loading />;
+      await createUserWithEmailAndPassword(auth, email, password)
+        .catch(function (error) {
+          if (error.code === "auth/email-already-in-use") {
+            setErrorMessages("Email already in use");
+          } else if (error.code === "auth/invalid-email") {
+            setErrorMessages("Invalid email");
+          } else if (error.code === "auth/weak-password") {
+            setErrorMessages("Weak password");
+          }
+        })
+        .then(() => {
+          if (auth.currentUser) {
+            router.push("/");
+          }
+        });
     }
   };
 
@@ -194,6 +201,15 @@ const SignUp = (props: Props) => {
             Log In
           </Link>
         </h5>
+        <div>
+          {errorMessages.length > 0 ? (
+            <p className="mt-4 text-error text-center text-xl font-bold italic text-red-500">
+              {errorMessages}
+            </p>
+          ) : (
+            ""
+          )}
+        </div>
       </form>
     </div>
   );

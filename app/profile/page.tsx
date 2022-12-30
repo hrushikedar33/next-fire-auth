@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { signOut } from "firebase/auth";
 import Loading from "../../components/Loading";
-import { notFound } from "next/navigation";
+import { useState } from "react";
 
 type Props = {};
 
@@ -13,6 +13,7 @@ const Profile = (props: Props) => {
   initFirebase();
   const router = useRouter();
   const [user, loading] = useAuthState(auth);
+  const [errorMessages, setErrorMessages] = useState("");
 
   if (loading) {
     <Loading />;
@@ -24,13 +25,14 @@ const Profile = (props: Props) => {
   }
 
   const logout = async () => {
-    try {
-      <Loading />;
-      await signOut(auth);
-      router.push("/login");
-    } catch (error) {
-      console.log(error);
-    }
+    <Loading />;
+    await signOut(auth)
+      .catch((error) => {
+        setErrorMessages("Something went wrong");
+      })
+      .then(() => {
+        router.push("/login");
+      });
   };
   return (
     <div className="my-[7vh] md:my-[10vh] w-full md:max-w-2xl mx-auto">
@@ -42,6 +44,15 @@ const Profile = (props: Props) => {
         <button className="form-btn mt-4" onClick={logout}>
           Logout
         </button>
+      </div>
+      <div>
+        {errorMessages.length > 0 ? (
+          <p className="mt-4 text-error text-center text-xl font-bold italic text-red-500">
+            {errorMessages}
+          </p>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );

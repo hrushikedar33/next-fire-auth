@@ -8,7 +8,6 @@ import { validEmailHelper } from "../../helpers/helper";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, initFirebase } from "../../config/firebase";
 import { useRouter } from "next/navigation";
-import { useAuthState } from "react-firebase-hooks/auth";
 import Loading from "../../components/Loading";
 
 type Props = {};
@@ -19,6 +18,7 @@ const ForgotPassword = (props: Props) => {
 
   const [email, setEmail] = useState("");
   const [isValidEmail, setIsValidEmail] = useState(false);
+  const [errorMessages, setErrorMessages] = useState("");
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -28,13 +28,18 @@ const ForgotPassword = (props: Props) => {
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isValidEmail) {
-      try {
-        <Loading />;
-        await sendPasswordResetEmail(auth, email);
-        router.push("/login");
-      } catch (error) {
-        console.log(error);
-      }
+      <Loading />;
+      await sendPasswordResetEmail(auth, email)
+        .catch(function (error) {
+          if (error.code === "auth/user-not-found") {
+            setErrorMessages("User not found, please sign up");
+          } else {
+            setErrorMessages(error.message);
+          }
+        })
+        .then(() => {
+          router.push("/login");
+        });
     }
   };
 
@@ -81,6 +86,15 @@ const ForgotPassword = (props: Props) => {
         >
           Return to Login
         </Link>
+        <div>
+          {errorMessages.length > 0 ? (
+            <p className="mt-4 text-error text-center text-xl font-bold italic text-red-500">
+              {errorMessages}
+            </p>
+          ) : (
+            ""
+          )}
+        </div>
       </form>
     </div>
   );

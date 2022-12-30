@@ -20,9 +20,11 @@ const LogIn = (props: Props) => {
   initFirebase();
 
   const router = useRouter();
+
   const [user, loading] = useAuthState(auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessages, setErrorMessages] = useState("");
 
   const [isValidEmail, setIsValidEmail] = useState(false);
 
@@ -48,25 +50,38 @@ const LogIn = (props: Props) => {
     e.preventDefault();
 
     if (isValidEmail) {
-      try {
-        <Loading />;
-        await signInWithEmailAndPassword(auth, email, password);
-        router.push("/");
-      } catch (error) {
-        console.log(error);
-      }
+      <Loading />;
+      await signInWithEmailAndPassword(auth, email, password)
+        .catch(function (error) {
+          if (error.code === "auth/user-not-found") {
+            setErrorMessages("User not found, please sign up");
+          } else if (error.code === "auth/wrong-password") {
+            setErrorMessages("Wrong password");
+          } else {
+            setErrorMessages("Something went wrong");
+          }
+        })
+        .then(() => {
+          if (auth.currentUser) {
+            router.push("/");
+          }
+        });
     }
   };
 
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    try {
-      <Loading />;
-      await signInWithPopup(auth, provider);
-      router.push("/");
-    } catch (error) {
-      console.log(error);
-    }
+
+    <Loading />;
+    await signInWithPopup(auth, provider)
+      .catch(function (error) {
+        setErrorMessages("Something went wrong");
+      })
+      .then(() => {
+        if (auth.currentUser) {
+          router.push("/");
+        }
+      });
   };
 
   return (
@@ -147,6 +162,15 @@ const LogIn = (props: Props) => {
         >
           Forgot Password?
         </Link>
+        <div>
+          {errorMessages.length > 0 ? (
+            <p className="mt-4 text-error text-center text-xl font-bold italic text-red-500">
+              {errorMessages}
+            </p>
+          ) : (
+            ""
+          )}
+        </div>
       </form>
     </div>
   );

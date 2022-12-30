@@ -2,7 +2,7 @@
 
 import { auth, initFirebase } from "../config/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
 import Loading from "../components/Loading";
@@ -15,7 +15,21 @@ const Header = (props: Props) => {
   const pathname = usePathname();
   const [toggleMenu, setToggleMenu] = useState(false);
   const [user, loading] = useAuthState(auth);
-  var route;
+
+  const toggleEventHandle = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target?.id !== "toogle-click") {
+      setToggleMenu(!toggleMenu);
+    }
+  };
+
+  useEffect(() => {
+    if (toggleMenu) {
+      document.addEventListener("click", toggleEventHandle, { once: true });
+    }
+  }, [toggleMenu]);
+
+  let route;
 
   if (loading) return <Loading />;
 
@@ -87,31 +101,30 @@ const Header = (props: Props) => {
           <div className="ml-5 relative cursor-pointer">
             {toggleMenu ? (
               <XMarkIcon
+                id="toogle-click"
                 className="md:hidden h-8 w-8 cursor-pointer"
-                onClick={() => setToggleMenu(false)}
               />
             ) : (
               <Bars3Icon
+                id="toogle-click"
                 className="md:hidden h-8 w-8 cursor-pointer"
                 onClick={() => setToggleMenu(true)}
               />
             )}{" "}
             {toggleMenu && (
-              <div className="absolute flex justify-center align-middle p-2 top-10 right-0 bg-gray-900 rounded-xl shadow-xl ">
-                <ul className="flex flex-col gap-2 p-4">
-                  {route.map((item) => (
-                    <Link key={item.name} href={item.link}>
-                      <li
-                        className={
-                          pathname == item.link ? "my-btn" : "my-activebtn"
-                        }
-                      >
-                        {item.name}
-                      </li>
-                    </Link>
-                  ))}
-                </ul>
-              </div>
+              <ul className="absolute flex justify-center align-middle p-4 top-10 right-0 bg-gray-900 rounded-xl shadow-xl flex-col gap-2 ">
+                {route.map((item) => (
+                  <Link key={item.name} href={item.link}>
+                    <li
+                      className={
+                        pathname == item.link ? "my-btn" : "my-activebtn"
+                      }
+                    >
+                      {item.name}
+                    </li>
+                  </Link>
+                ))}
+              </ul>
             )}
           </div>
         </div>
